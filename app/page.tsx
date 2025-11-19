@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
   const [statusAviario, setStatusAviario] = useState<any>(null);
-  const [ultimaLeitura, setUltimaLeitura] = useState<any>(null);
+  const [leituras, setLeituras] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
@@ -12,14 +12,18 @@ export default function DashboardPage() {
       const token = localStorage.getItem("cognito_token");
 
       // --- API Node (sensor de temperatura)
-      const leituraRes = await fetch("http://localhost:3002/leituras/ultima", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const leituraRes = await fetch(
+        "http://192.168.30.64/api/express/leituras",
+        {
+          headers: {
+            Authorization: `123123`,
+          },
+        }
+      );
       const leituraJson = await leituraRes.json();
-      setUltimaLeitura(leituraJson);
-
+      console.log(leituraJson);
+      setLeituras(leituraJson);
+      /*
       // --- API Spring Boot (bem-estar animal)
       const aviarioRes = await fetch("http://localhost:8080/aviario/status", {
         headers: {
@@ -27,7 +31,7 @@ export default function DashboardPage() {
         },
       });
       const aviarioJson = await aviarioRes.json();
-      setStatusAviario(aviarioJson);
+      setStatusAviario(aviarioJson);*/
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
     } finally {
@@ -47,26 +51,26 @@ export default function DashboardPage() {
         <p>Carregando dados...</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* CARD: Última leitura do sensor */}
           <div className="p-6 rounded-lg shadow bg-white border">
-            <h2 className="text-xl font-semibold mb-4">📡 Última Leitura</h2>
+            <h2 className="text-xl font-semibold mb-4">📡 Leituras</h2>
 
-            {ultimaLeitura ? (
-              <div>
-                <p>
-                  <strong>Temperatura:</strong> {ultimaLeitura.temperatura}°C
-                </p>
-                <p>
-                  <strong>Capturado:</strong>{" "}
-                  {new Date(ultimaLeitura.timestamp).toLocaleString()}
-                </p>
-              </div>
+            {Array.isArray(leituras) && leituras.length > 0 ? (
+              leituras.map((element: any, idx: number) => (
+                <div
+                  key={element._id ?? `${element.idSensor}-${idx}`}
+                  className="mb-4"
+                >
+                  <p>Sensor: {element.idSensor}</p>
+                  <p>
+                    <strong>Temperatura:</strong> {element.leitura}°C
+                  </p>
+                </div>
+              ))
             ) : (
               <p>Nenhuma leitura disponível.</p>
             )}
           </div>
-
-          {/* CARD: Status do aviário */}
+          {/*
           <div className="p-6 rounded-lg shadow bg-white border">
             <h2 className="text-xl font-semibold mb-4">🐔 Status do Aviário</h2>
 
@@ -87,7 +91,7 @@ export default function DashboardPage() {
             ) : (
               <p>Sem dados do Spring Boot.</p>
             )}
-          </div>
+          </div>*/}
         </div>
       )}
     </div>
