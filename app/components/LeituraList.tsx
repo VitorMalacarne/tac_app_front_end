@@ -31,13 +31,13 @@ export default function LeituraList({ token }: LeituraListProps) {
   // FETCH REAL
 
   useEffect(() => {
-    if (!token) return;
+    //if (!token) return;
 
     const fetchLeituras = async () => {
       try {
-        const res = await fetch(`${API_EXPRESS}/leituras?page=0&size=5`, {
+        const res = await fetch(`${API_EXPRESS}/leituras`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `123123`,
             Accept: "application/json",
           },
         });
@@ -46,6 +46,7 @@ export default function LeituraList({ token }: LeituraListProps) {
 
         const data = await res.json();
         setLeituras(data.content || data); // depende da sua API
+        console.log(data);
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -62,7 +63,7 @@ export default function LeituraList({ token }: LeituraListProps) {
   return (
     <ul className="space-y-2">
       {leituras.map((d) => (
-        <li key={d.id} className="border p-2 rounded flex justify-between">
+        <li key={d._id} className="border p-2 rounded flex justify-between">
           <span>Tipo do Sensor: {d.tipoSensor}</span>
           <span>Leitura: {d.leitura}</span>
         </li>

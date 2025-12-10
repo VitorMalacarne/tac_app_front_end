@@ -1,5 +1,5 @@
 export interface Leitura {
-  id: string;
+  _id: string;
   tipoSensor: string;
   leitura: string;
 }

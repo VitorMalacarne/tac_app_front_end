@@ -5,11 +5,7 @@ import { API_SPRING } from "../const";
 import type { Lote } from "../models/Lote";
 import LoteForm from "./LoteForm";
 
-interface LoteListProps {
-  token?: any;
-}
-
-export default function LoteList({ token }: LoteListProps) {
+export default function LoteList() {
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,6 +16,13 @@ export default function LoteList({ token }: LoteListProps) {
   const [submitting, setSubmitting] = useState(false);
 
   const [q, setQ] = useState("");
+
+  const [token, setToken] = useState<string | null>("");
+
+  useEffect(() => {
+    const storedToken: string | null = localStorage.getItem("accessToken");
+    setToken(storedToken);
+  }, []);
 
   // fake fetch
   // useEffect(() => {
@@ -37,13 +40,15 @@ export default function LoteList({ token }: LoteListProps) {
   // }, []);
 
   useEffect(() => {
-    if (!token) return;
+    //if (!token) return;
     const fetchLotes = async () => {
       try {
-        const res = await fetch(`${API_SPRING}/lotes?page=0&size=5`, {
+        console.log("Token de acesso:", token);
+        const res = await fetch(`${API_SPRING}/lotes`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
+            "Content-Type": "application/json",
           },
         });
         if (!res.ok) throw new Error("Falha ao carregar lotes");

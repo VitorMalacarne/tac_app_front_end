@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_EXPRESS } from "../const";
 
 export default function LeiturasPage() {
   const [leituras, setLeituras] = useState<any[]>([]);
@@ -8,11 +9,11 @@ export default function LeiturasPage() {
 
   const fetchLeituras = async () => {
     try {
-      const token = localStorage.getItem("cognito_token");
-
-      const res = await fetch("http://localhost:3002/leituras", {
+      //const token = localStorage.getItem("cognito_token");
+      console.log("fetch");
+      const res = await fetch(`${API_EXPRESS}/leituras`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: "123123",
         },
       });
 

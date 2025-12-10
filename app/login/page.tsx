@@ -121,8 +121,12 @@ export default function LoginPage() {
       // backend devolve tokens (ou pode devolver apenas um jwt custom)
       const tokens = data.AuthenticationResult || data;
 
+      console.log("tokens", tokens);
       // armazenar tokens (por enquanto localStorage — ver nota de segurança abaixo)
-      if (tokens.IdToken) localStorage.setItem("idToken", tokens.IdToken);
+      if (tokens.IdToken) {
+        localStorage.setItem("idToken", tokens.IdToken);
+        console.log("Deu certo");
+      }
       if (tokens.AccessToken)
         localStorage.setItem("accessToken", tokens.AccessToken);
       if (tokens.RefreshToken)
