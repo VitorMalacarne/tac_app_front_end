@@ -9,21 +9,18 @@ export default function DashboardPage() {
 
   const loadData = async () => {
     try {
-      const token = localStorage.getItem("cognito_token");
+      const token = process.env.TOKEN_BEARER;
 
       // --- API Node (sensor de temperatura)
-      const leituraRes = await fetch(
-        "http://192.168.30.64/api/express/leituras",
-        {
-          headers: {
-            Authorization: `123123`,
-          },
-        }
-      );
+      const leituraRes = await fetch("http://localhost/api/express/leituras", {
+        headers: {
+          Authorization: `123123`,
+        },
+      });
       const leituraJson = await leituraRes.json();
       console.log(leituraJson);
       setLeituras(leituraJson);
-      /*
+
       // --- API Spring Boot (bem-estar animal)
       const aviarioRes = await fetch("http://localhost:8080/aviario/status", {
         headers: {
@@ -31,7 +28,7 @@ export default function DashboardPage() {
         },
       });
       const aviarioJson = await aviarioRes.json();
-      setStatusAviario(aviarioJson);*/
+      setStatusAviario(aviarioJson);
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
     } finally {
