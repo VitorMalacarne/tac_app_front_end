@@ -30,10 +30,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 # Copia apenas os arquivos necessários para rodar a aplicação
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app ./
+
 
 # Porta exposta
 EXPOSE 3000
