@@ -9,7 +9,11 @@ interface LoteFormProps {
   onCancel?: () => void;
 }
 
-export default function LoteForm({ initial = null, onSubmit, onCancel }: LoteFormProps) {
+export default function LoteForm({
+  initial = null,
+  onSubmit,
+  onCancel,
+}: LoteFormProps) {
   const [descricao, setDescricao] = useState(initial?.descricao ?? "");
   const [aviarioId, setAviarioId] = useState(initial?.aviarioId ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +49,11 @@ export default function LoteForm({ initial = null, onSubmit, onCancel }: LoteFor
           {initial ? "Editar Lote" : "Criar Lote"}
         </h3>
 
-        {error && <div className="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
+        {error && (
+          <div className="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">
+            {error}
+          </div>
+        )}
 
         <label className="block mb-4">
           <span className="text-sm text-gray-700">Descrição</span>

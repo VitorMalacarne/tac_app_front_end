@@ -13,29 +13,29 @@ export default function LeituraList({ token }: LeituraListProps) {
   const [loading, setLoading] = useState(true);
 
   // FETCH FALSO (TEMPORÁRIO)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const fakeData: Leitura[] = [
-        { id: "1", tipoSensor: "Leitura Inicial", leitura: "A1" },
-        { id: "2", tipoSensor: "Leitura de Teste", leitura: "A2" },
-        { id: "3", tipoSensor: "Leitura Premium", leitura: "A3" },
-      ];
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     const fakeData: Leitura[] = [
+  //       { id: "1", tipoSensor: "Leitura Inicial", leitura: "A1" },
+  //       { id: "2", tipoSensor: "Leitura de Teste", leitura: "A2" },
+  //       { id: "3", tipoSensor: "Leitura Premium", leitura: "A3" },
+  //     ];
 
-      setLeituras(fakeData);
-      setLoading(false);
-    }, 700); // simular carregamento
+  //     setLeituras(fakeData);
+  //     setLoading(false);
+  //   }, 700); // simular carregamento
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   // FETCH REAL
-  /*
+
   useEffect(() => {
     if (!token) return;
 
     const fetchLeituras = async () => {
       try {
-        const res = await fetch(`${API_SPRING}/leituras?page=0&size=5`, {
+        const res = await fetch(`${API_EXPRESS}/leituras?page=0&size=5`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -55,7 +55,6 @@ export default function LeituraList({ token }: LeituraListProps) {
 
     fetchLeituras();
   }, [token]);
-  */
 
   if (loading) return <p>Carregando leituras...</p>;
   if (!leituras.length) return <p>Nenhum leitura encontrado.</p>;

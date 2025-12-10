@@ -12,6 +12,7 @@ export default function Navbar() {
       <Link href="/dashboard/lote">Lotes</Link>
       <Link href="/dashboard/pessoa">Pessoas</Link>
       <Link href="/dashboard/atuador">Atuadores</Link>
+      <Link href="/dashboard/leitura">Leituras</Link>
     </nav>
   );
 }

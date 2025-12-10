@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { API_SPRING } from "../const";
 import type { Lote } from "../models/Lote";
 import LoteForm from "./LoteForm";
 
@@ -16,22 +17,46 @@ export default function LoteList({ token }: LoteListProps) {
   const [editing, setEditing] = useState<Lote | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const [submitting, setSubmitting] = useState(false);
+
   const [q, setQ] = useState("");
 
   // fake fetch
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const fakeData: Lote[] = [
-        { id: "1", descricao: "Lote Inicial", aviarioId: "A1" },
-        { id: "2", descricao: "Lote de Teste", aviarioId: "A2" },
-        { id: "3", descricao: "Lote Premium", aviarioId: "A3" },
-      ];
-      setLotes(fakeData);
-      setLoading(false);
-    }, 500);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     const fakeData: Lote[] = [
+  //       { id: "1", descricao: "Lote Inicial", aviarioId: "A1" },
+  //       { id: "2", descricao: "Lote de Teste", aviarioId: "A2" },
+  //       { id: "3", descricao: "Lote Premium", aviarioId: "A3" },
+  //     ];
+  //     setLotes(fakeData);
+  //     setLoading(false);
+  //   }, 500);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    const fetchLotes = async () => {
+      try {
+        const res = await fetch(`${API_SPRING}/lotes?page=0&size=5`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+        if (!res.ok) throw new Error("Falha ao carregar lotes");
+        const data = await res.json();
+        setLotes(data.content || data); // depende da sua API
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setLoading(false);
+      }
+    };
+    fetchLotes();
+  }, [token]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -56,32 +81,113 @@ export default function LoteList({ token }: LoteListProps) {
     setOpenForm(true);
   }
 
-  function handleDeleteClick(l: Lote) {
+  async function handleDeleteClick(l: Lote) {
     const ok = confirm(`Excluir lote "${l.descricao}" (${l.id})?`);
     if (!ok) return;
-    setLotes((prev) => prev.filter((x) => x.id !== l.id));
-    setMessage("Lote excluído.");
-    setTimeout(() => setMessage(null), 2500);
+
+    const t = token ?? localStorage.getItem("accessToken");
+    if (!t) {
+      setMessage("Token ausente. Faça login.");
+      setTimeout(() => setMessage(null), 2500);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_SPRING}/lotes/${l.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${t}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(errText || "Falha ao excluir lote");
+      }
+
+      // sucesso: remover localmente
+      setLotes((prev) => prev.filter((x) => x.id !== l.id));
+      setMessage("Lote excluído.");
+    } catch (err: any) {
+      console.error("Lote delete error:", err);
+      setMessage(err?.message || "Erro ao excluir lote");
+    } finally {
+      setTimeout(() => setMessage(null), 2500);
+    }
   }
 
-  function handleSubmit(payload: { descricao: string; aviarioId: string }) {
-    if (editing) {
-      setLotes((prev) =>
-        prev.map((it) => (it.id === editing.id ? { ...it, ...payload } : it))
-      );
-      setMessage("Lote atualizado.");
-    } else {
-      const newLote: Lote = {
-        id: `${Date.now()}`,
-        descricao: payload.descricao,
-        aviarioId: payload.aviarioId,
-      };
-      setLotes((prev) => [newLote, ...prev]);
-      setMessage("Lote criado.");
+  async function handleSubmit(payload: {
+    descricao: string;
+    aviarioId: string;
+  }) {
+    const t = token ?? localStorage.getItem("accessToken");
+    if (!t) {
+      setMessage("Token ausente. Faça login.");
+      setTimeout(() => setMessage(null), 2500);
+      return;
     }
-    setOpenForm(false);
-    setEditing(null);
-    setTimeout(() => setMessage(null), 2500);
+
+    setSubmitting(true);
+    try {
+      if (editing) {
+        // Editar (PUT)
+        const res = await fetch(`${API_SPRING}/lotes/${editing.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${t}`,
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          throw new Error(errText || "Falha ao atualizar lote");
+        }
+
+        const updated = await res
+          .json()
+          .catch(() => ({ id: editing.id, ...payload }));
+        setLotes((prev) =>
+          prev.map((it) => (it.id === editing.id ? updated : it))
+        );
+        setMessage("Lote atualizado.");
+      } else {
+        // Criar (POST)
+        const res = await fetch(`${API_SPRING}/lotes`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${t}`,
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          throw new Error(errText || "Falha ao criar lote");
+        }
+
+        const created = await res
+          .json()
+          .catch(() => ({ id: `${Date.now()}`, ...payload }));
+        setLotes((prev) => [created, ...prev]);
+        setMessage("Lote criado.");
+      }
+    } catch (err: any) {
+      console.error("Lote save error:", err);
+      setMessage(
+        typeof err === "string" ? err : err.message || "Erro ao salvar lote"
+      );
+    } finally {
+      setSubmitting(false);
+      setOpenForm(false);
+      setEditing(null);
+      setTimeout(() => setMessage(null), 2500);
+    }
   }
 
   if (loading) {
