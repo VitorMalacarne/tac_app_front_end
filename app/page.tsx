@@ -12,14 +12,11 @@ export default function DashboardPage() {
       const token = process.env.TOKEN_BEARER;
 
       // --- API Node (sensor de temperatura)
-      const leituraRes = await fetch(
-        "http://192.168.30.64/api/express/leituras",
-        {
-          headers: {
-            Authorization: `123123`,
-          },
-        }
-      );
+      const leituraRes = await fetch("http://localhost/api/express/leituras", {
+        headers: {
+          Authorization: `123123`,
+        },
+      });
       const leituraJson = await leituraRes.json();
       console.log(leituraJson);
       setLeituras(leituraJson);
